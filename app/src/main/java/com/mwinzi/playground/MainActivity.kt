@@ -44,16 +44,31 @@ class MainActivity : ComponentActivity() {
                        }
 
                         LaunchedEffect(key1 = true){
-                           var job =  GlobalScope.launch(Dispatchers.IO) {
-                              val netcallresult =  donetworkcall()
-                               val netcallresult2 = donetworkcall2()
-                                Log.d("Networkcall",netcallresult)
-                                Log.d("Networkcall2",netcallresult2)
-                               withContext(Dispatchers.Main){
-                                   Toast.makeText(context,netcallresult,Toast.LENGTH_LONG).show()
-                               }
 
+                            val mainjob = GlobalScope.launch {
+                                var job1 =  GlobalScope.launch(Dispatchers.IO) {
+                                    val netcallresult =  donetworkcall()
+                                    Log.d("Networkcall",netcallresult)
+                                    withContext(Dispatchers.Main){
+                                        Toast.makeText(context,netcallresult,Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                                Log.d("Terminating Job1","Terminating job1......")
+                                job1.join()
+                                Log.d("job1 terminated","Terminated job1")
+                                val job2 = GlobalScope.launch {
+                                    val networkcallresult2 = donetworkcall2()
+                                    Log.d("Networkcall2",networkcallresult2)
+                                }
+                                Log.d("Terminating Job2","Terminating job2......")
+                                job2.join()
+                                Log.d("job2 terminated","Terminated job2")
                             }
+
+                            Log.d("Terminating Jobs","Terminating alljobs......")
+                            mainjob.join()
+                            Log.d("Mainjobs terminated","Terminated jobs")
+
                         }
                     }
                 }
@@ -64,7 +79,7 @@ class MainActivity : ComponentActivity() {
 
 suspend fun donetworkcall() : String{
 
-    delay(5000L)
+    delay(2000L)
 
     return "Data fetched from networkcall1"
 }
